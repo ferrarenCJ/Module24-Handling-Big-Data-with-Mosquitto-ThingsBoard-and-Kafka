@@ -1,0 +1,9 @@
+# Required Discussion 24.2: Use Cases for ThingsBoard
+
+For this discussion, I selected **fleet management and vehicle telemetry monitoring** as a use case for ThingsBoard. Modern fleet operations generate large amounts of real-time data from GPS units, engine sensors, fuel monitoring systems, and driver-behavior devices. ThingsBoard is a strong choice because it is designed to collect, process, visualize, and manage telemetry data from connected devices through a centralized platform. It provides dashboards, rule chains, device management, and integrations that allow organizations to monitor fleet activity in real time.
+
+Several alarms should be included in this application. For example, an **overspeed alarm** could be triggered when a vehicle exceeds a defined speed threshold. A **low-fuel alarm** could notify fleet operators when fuel levels drop below a safe limit, while a **vehicle-offline alarm** could identify communication failures or GPS connectivity issues. These alarms improve operational awareness, safety, and fleet reliability by enabling proactive responses instead of waiting for manual review.
+
+To enhance data analysis, I would use several ThingsBoard widgets. A **timeseries chart** would display vehicle speed and fuel consumption trends over time. A **map widget** would visualize the real-time location of vehicles. A **gauge widget** could show current fuel level or engine temperature, and an **alarm table widget** could display active fleet alerts. Together, these widgets would provide both operational monitoring and historical analysis, allowing fleet managers to make informed decisions and quickly respond to abnormal conditions.
+
+In summary, ThingsBoard provides a complete platform for collecting telemetry, monitoring fleet operations, generating alerts, and visualizing vehicle performance, making it an excellent solution for fleet management applications.
