@@ -1,0 +1,469 @@
+# Required Project 24.1 (Part 1)
+# Streaming Live Data to ThingsBoard
+
+## Module 24
+### Handling Big Data with Mosquitto, ThingsBoard, and Kafka
+
+---
+
+# Objective
+
+The objective of this project is to build an end-to-end IoT streaming pipeline using:
+
+- Mosquitto
+- MQTT
+- ThingsBoard
+- Firebase Realtime Database
+- Docker
+- Python
+
+The project demonstrates the generation, transmission, visualization, and storage of live telemetry data consisting of temperature and humidity measurements.
+
+---
+
+# Final Solution Architecture
+
+```text
+TBPublish.py
+      │
+      ▼
+MQTT Publisher
+      │
+      ▼
+Mosquitto Broker
+      │
+      ▼
+ThingsBoard
+      │
+      ▼
+DHT11 Demo Device
+      │
+      ▼
+Firebase Realtime Database
+```
+
+---
+
+# Technologies Used
+
+| Technology | Purpose |
+|------------|---------|
+| Python | MQTT Publisher |
+| Paho MQTT | MQTT Client Library |
+| Mosquitto | MQTT Broker |
+| Docker | Containerization |
+| ThingsBoard | IoT Platform |
+| Firebase | Cloud Realtime Database |
+| Java | ThingsBoard Runtime |
+
+---
+
+# Folder Structure
+
+```text
+Required_Project_24.1_Part_1_Streaming_Live_Data_to_ThingsBoard
+│
+├── Project_24_Docker
+│   │
+│   ├── docker-compose.yml
+│   │
+│   └── mosquitto
+│       ├── config
+│       │   └── mosquitto.conf
+│       ├── data
+│       └── log
+│
+├── Project_24_MQTT
+│   │
+│   ├── ThingsBoard
+│   │   ├── docker-compose.yml
+│   │   ├── .mytb-data
+│   │   └── .mytb-logs
+│   │
+│   └── paho-mqtt
+│       └── TBPublish.py
+│
+├── Screenshots
+│
+├── Submission
+│
+└── README.md
+```
+
+---
+
+# MQTT Publisher
+
+The MQTT publisher simulates a temperature and humidity sensor.
+
+## Modified Sensor Payload
+
+```python
+sensor_data = {
+    "temperature": 0,
+    "humidity": 0
+}
+```
+
+## Telemetry Generation
+
+```python
+temperature = random.randint(0, 100)
+
+humidity = random.randint(50, 100)
+
+sensor_data["temperature"] = temperature
+sensor_data["humidity"] = humidity
+```
+
+## Example Payload
+
+```json
+{
+    "temperature": 76,
+    "humidity": 98
+}
+```
+
+---
+
+# ThingsBoard Configuration
+
+## Login
+
+```text
+URL:
+http://localhost:8080
+
+Username:
+tenant@thingsboard.org
+
+Password:
+tenant
+```
+
+---
+
+## Device
+
+```text
+DHT11 Demo Device
+```
+
+Used to receive MQTT telemetry.
+
+---
+
+## Root Rule Chain
+
+Additional node added:
+
+```text
+Firebase
+```
+
+Node Type:
+
+```text
+REST API Call
+```
+
+Endpoint:
+
+```text
+https://module24project-1eaef-default-rtdb.firebaseio.com/.json
+```
+
+Method:
+
+```text
+POST
+```
+
+Relation:
+
+```text
+Post telemetry
+```
+
+---
+
+# Firebase Configuration
+
+## Project Name
+
+```text
+module24Project
+```
+
+---
+
+## Database
+
+```text
+Firebase Realtime Database
+```
+
+Location:
+
+```text
+United States (us-central1)
+```
+
+---
+
+## Example Data
+
+```json
+{
+    "humidity": 98,
+    "temperature": 76
+}
+```
+
+---
+
+# Issue Encountered
+
+## Problem
+
+Although MQTT and ThingsBoard were functioning correctly, Firebase was not receiving telemetry.
+
+ThingsBoard logs displayed:
+
+```text
+PKIX path building failed
+
+SSLHandshakeException
+
+unable to find valid certification path to requested target
+```
+
+---
+
+# Root Cause Analysis
+
+The corporate network performs SSL inspection using:
+
+```text
+Sempra Energy Utilities Root Authority SHA2
+```
+
+Certificate chain:
+
+```text
+Firebase
+    ↓
+SEU SSL PA-08
+    ↓
+Sempra Energy Utilities Enterprise SHA2 CA5
+    ↓
+Sempra Energy Utilities Root Authority SHA2
+```
+
+The Java runtime inside the ThingsBoard Docker container did not trust the Sempra certificate chain.
+
+Because of this:
+
+```text
+ThingsBoard
+     ↓
+Firebase
+```
+
+failed with:
+
+```text
+PKIX path building failed
+```
+
+---
+
+# Solution
+
+## Step 1
+
+Export:
+
+```text
+Sempra Energy Utilities Root Authority SHA2
+```
+
+from:
+
+```text
+certmgr.msc
+```
+
+---
+
+## Step 2
+
+Save as:
+
+```text
+SempraRoot.cer
+```
+
+---
+
+## Step 3
+
+Copy certificate into ThingsBoard container.
+
+```cmd
+docker cp SempraRoot.cer thingsboard-mytb-1:/tmp/
+```
+
+---
+
+## Step 4
+
+Enter container as root.
+
+```cmd
+docker exec -u 0 -it thingsboard-mytb-1 bash
+```
+
+---
+
+## Step 5
+
+Import certificate into Java truststore.
+
+```bash
+keytool -importcert \
+-alias sempra-root \
+-file /tmp/SempraRoot.cer \
+-keystore /usr/lib/jvm/java-17-openjdk-amd64/lib/security/cacerts \
+-storepass changeit \
+-noprompt
+```
+
+Output:
+
+```text
+Certificate was added to keystore
+```
+
+---
+
+## Step 6
+
+Verify import.
+
+```bash
+keytool -list \
+-keystore /usr/lib/jvm/java-17-openjdk-amd64/lib/security/cacerts \
+-storepass changeit | grep -i sempra
+```
+
+Result:
+
+```text
+sempra-root
+```
+
+---
+
+## Step 7
+
+Restart ThingsBoard.
+
+```cmd
+docker restart thingsboard-mytb-1
+```
+
+---
+
+# Final Result
+
+Firebase successfully received temperature and humidity records generated by the MQTT Publisher and processed by ThingsBoard.
+
+Example entries:
+
+```json
+{
+    "temperature": 57,
+    "humidity": 65
+}
+```
+
+```json
+{
+    "temperature": 98,
+    "humidity": 68
+}
+```
+
+```json
+{
+    "temperature": 74,
+    "humidity": 92
+}
+```
+
+```json
+{
+    "temperature": 76,
+    "humidity": 98
+}
+```
+
+---
+
+# Key Learning Outcomes
+
+Successfully demonstrated:
+
+✅ MQTT Publish/Subscribe Architecture
+
+✅ Mosquitto Docker Deployment
+
+✅ Paho MQTT Client Usage
+
+✅ ThingsBoard Telemetry Processing
+
+✅ Firebase Realtime Database Integration
+
+✅ REST API Integration
+
+✅ SSL Certificate Troubleshooting
+
+✅ Java Truststore Management
+
+✅ End-to-End IoT Streaming Pipeline
+
+---
+
+# Assignment Deliverables Completed
+
+| Step | Status |
+|--------|--------|
+| Project Folder Structure | ✅ |
+| Mosquitto Container | ✅ |
+| Paho Installation | ✅ |
+| ThingsBoard Data Directories | ✅ |
+| ThingsBoard Folder Structure | ✅ |
+| ThingsBoard Container | ✅ |
+| TBPublish.py Modification | ✅ |
+| Temperature & Humidity Generation | ✅ |
+| ThingsBoard Login | ✅ |
+| DHT11 Device Telemetry | ✅ |
+| Firebase Project Creation | ✅ |
+| Firebase Realtime Database | ✅ |
+| Firebase REST API Node | ✅ |
+| Firebase Telemetry Updates | ✅ |
+
+---
+
+# Project Status
+
+```text
+Required Project 24.1 (Part 1)
+COMPLETED SUCCESSFULLY
+```
+
+**Author:** Clifford Ferraren  
+**Program:** MIT Professional Education - Applied Data Engineering Program  
+**Module:** Module 24 - Handling Big Data with Mosquitto, ThingsBoard, and Kafka
