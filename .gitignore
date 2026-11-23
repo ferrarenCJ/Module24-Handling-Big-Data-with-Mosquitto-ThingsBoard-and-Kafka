@@ -35,3 +35,12 @@ build/
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Node
+node_modules/
+
+# Package locks (optional)
+package-lock.json
+
+# Kafka Assignment
+Assignment/**/node_modules/
