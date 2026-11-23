@@ -1,0 +1,681 @@
+# Mini-Lesson 24.6: Introduction to Node.js
+
+---
+
+# Overview
+
+This lesson introduces Node.js, an open-source JavaScript runtime environment used to execute JavaScript code outside of a web browser.
+
+In Module 10, Node.js was used to make API calls. In Module 24, Node.js will be used to:
+
+- Create web applications
+- Build a web server
+- Consume Kafka messages
+- Display streaming data
+- Support Required Project 24.2
+
+Node.js becomes the consumer layer that receives Kafka messages and serves them through a web application.
+
+---
+
+# What is Node.js?
+
+Node.js is:
+
+- Open-source
+- Cross-platform
+- Server-side JavaScript runtime
+- Event-driven
+- Lightweight
+- High-performance
+
+Supported platforms include:
+
+- Windows
+- Linux
+- Unix
+- macOS
+
+---
+
+# Why Node.js?
+
+Traditionally, JavaScript runs inside a browser.
+
+Node.js allows JavaScript to run:
+
+```text
+Outside the Browser
+```
+
+which makes it suitable for:
+
+- Web servers
+- APIs
+- Data processing
+- Automation
+- Streaming applications
+
+---
+
+# Role in Module 24
+
+Node.js is used to build a Kafka consumer web server.
+
+Architecture:
+
+```text
+Kafka Topic
+      ↓
+Node.js Consumer
+      ↓
+Web Server
+      ↓
+Browser
+```
+
+---
+
+# Node.js Installation
+
+## Verify Existing Installation
+
+Open a command prompt and run:
+
+```cmd
+node --version
+```
+
+Example:
+
+```text
+v24.5.0
+```
+
+If a version number is returned:
+
+✅ Node.js is installed.
+
+---
+
+# If Node.js Is Not Installed
+
+Navigate to:
+
+```text
+https://nodejs.org
+```
+
+Download the appropriate installer:
+
+- Windows
+- macOS
+- Linux
+
+Install:
+
+```text
+Node.js LTS
+```
+
+recommended.
+
+---
+
+# Verifying Installation
+
+Run:
+
+```cmd
+node --version
+```
+
+and
+
+```cmd
+npm --version
+```
+
+Examples:
+
+```text
+v24.5.0
+
+11.6.0
+```
+
+---
+
+# What is NPM?
+
+NPM stands for:
+
+```text
+Node Package Manager
+```
+
+NPM is used to install JavaScript libraries.
+
+Examples:
+
+```cmd
+npm install express
+
+npm install node-rdkafka
+```
+
+---
+
+# Creating a Hello World Web Application
+
+The lesson demonstrates a basic Node.js web server.
+
+---
+
+# Step 1: Create index.js
+
+Create:
+
+```text
+index.js
+```
+
+---
+
+# Node.js Web Server Code
+
+```javascript
+const http = require('http')
+
+const hostname = '127.0.0.1'
+const port = 3000
+
+const server = http.createServer((req, res) => {
+
+  res.statusCode = 200
+
+  res.setHeader(
+      'Content-Type',
+      'text/plain'
+  )
+
+  res.end('Hello World\n')
+
+})
+
+server.listen(
+    port,
+    hostname,
+    () => {
+      console.log(
+        `Server running at http://${hostname}:${port}/`
+      )
+})
+```
+
+---
+
+# Understanding the Code
+
+## Import HTTP Module
+
+```javascript
+const http = require('http')
+```
+
+Provides web server functionality.
+
+---
+
+# Hostname
+
+```javascript
+const hostname = '127.0.0.1'
+```
+
+Represents:
+
+```text
+localhost
+```
+
+---
+
+# Port
+
+```javascript
+const port = 3000
+```
+
+Server runs on:
+
+```text
+http://127.0.0.1:3000
+```
+
+---
+
+# Create Server
+
+```javascript
+http.createServer()
+```
+
+Creates a web server.
+
+---
+
+# Response
+
+```javascript
+res.end('Hello World\n')
+```
+
+Returns:
+
+```text
+Hello World
+```
+
+to the browser.
+
+---
+
+# Start Listening
+
+```javascript
+server.listen()
+```
+
+Starts the server.
+
+---
+
+# Step 2: Start the Server
+
+Open a command prompt.
+
+Navigate to the folder containing:
+
+```text
+index.js
+```
+
+Run:
+
+```cmd
+node index
+```
+
+or
+
+```cmd
+node index.js
+```
+
+---
+
+# Expected Output
+
+```text
+Server running at http://127.0.0.1:3000/
+```
+
+---
+
+# Step 3: Open Browser
+
+Navigate to:
+
+```text
+http://127.0.0.1:3000
+```
+
+---
+
+# Expected Result
+
+```text
+Hello World
+```
+
+displayed in the browser.
+
+---
+
+# Browser Architecture
+
+```text
+Browser
+      ↓
+HTTP Request
+      ↓
+Node.js Server
+      ↓
+Hello World
+```
+
+---
+
+# Why This Matters
+
+This simple example demonstrates:
+
+- Server creation
+- Request handling
+- Response generation
+- Network communication
+
+These same concepts are used later in the Kafka project.
+
+---
+
+# Node.js and Kafka
+
+In Project 24.2:
+
+Node.js acts as a Kafka consumer.
+
+Instead of:
+
+```text
+Hello World
+```
+
+the web server will display:
+
+```text
+Kafka Messages
+```
+
+---
+
+# Future Architecture
+
+```text
+Kafka Topic
+      ↓
+Node.js Consumer
+      ↓
+Web Server
+      ↓
+Browser
+```
+
+---
+
+# Producer vs Consumer
+
+## Producer
+
+Publishes data.
+
+Example:
+
+```json
+{
+    "latitude": 33.875,
+    "longitude": -118.090
+}
+```
+
+---
+
+## Consumer
+
+Reads data.
+
+Node.js:
+
+```text
+Consumes Kafka Messages
+```
+
+---
+
+# Relationship to Project 24.2
+
+Students will:
+
+### Create Producer
+
+Python application.
+
+Publishes:
+
+```text
+GPS Coordinates
+```
+
+---
+
+### Create Kafka Topic
+
+```text
+vehicle-location
+```
+
+---
+
+### Create Consumer
+
+Node.js
+
+---
+
+### Build Web Server
+
+Node.js
+
+---
+
+### Stream Live Data
+
+Browser receives streaming location updates.
+
+---
+
+# Example Project Architecture
+
+```text
+Vehicle Location Generator
+             ↓
+      Kafka Producer
+             ↓
+        Kafka Topic
+             ↓
+       Kafka Broker
+             ↓
+      Node.js Consumer
+             ↓
+         Web Server
+             ↓
+          Browser
+```
+
+---
+
+# Advantages of Node.js
+
+## Fast
+
+Built on:
+
+```text
+Google V8 Engine
+```
+
+---
+
+## Lightweight
+
+Low resource usage.
+
+---
+
+## Event Driven
+
+Excellent for streaming applications.
+
+---
+
+## Large Ecosystem
+
+Access to:
+
+```text
+NPM
+```
+
+packages.
+
+---
+
+## Reusable
+
+JavaScript code can be shared across:
+
+- Frontend
+- Backend
+- APIs
+
+---
+
+# Real-World Applications
+
+## APIs
+
+```text
+REST Services
+```
+
+---
+
+## Streaming Platforms
+
+```text
+Kafka
+
+Event Hubs
+```
+
+---
+
+## Dashboards
+
+```text
+Telemetry Monitoring
+```
+
+---
+
+## Fleet Applications
+
+```text
+Vehicle Tracking
+```
+
+---
+
+## IoT Applications
+
+```text
+Device Monitoring
+```
+
+---
+
+# Fleet Intelligence Platform Connections
+
+Node.js fits directly into a fleet telemetry architecture.
+
+Example:
+
+```text
+Vehicle GPS
+      ↓
+Kafka Producer
+      ↓
+Kafka Topic
+      ↓
+Node.js Consumer
+      ↓
+Fleet Dashboard
+```
+
+---
+
+# Example Fleet Event
+
+```json
+{
+    "vehicle_id": "SCG001",
+    "latitude": 33.875,
+    "longitude": -118.090,
+    "speed": 58
+}
+```
+
+---
+
+# Example Web Dashboard
+
+```text
+Vehicle Location
+Speed
+Fuel Level
+Engine Status
+```
+
+updated in real time.
+
+---
+
+# Key Concepts
+
+| Concept | Description |
+|----------|-------------|
+| Node.js | JavaScript runtime environment |
+| HTTP Module | Creates web servers |
+| Server | Handles browser requests |
+| Client | Sends browser requests |
+| Port | Communication endpoint |
+| localhost | Local machine address |
+| NPM | Node Package Manager |
+| Consumer | Reads Kafka messages |
+| Producer | Publishes Kafka messages |
+| Web Server | Delivers data to browsers |
+
+---
+
+# Key Learning Outcomes
+
+Successfully introduced:
+
+✅ Node.js installation
+
+✅ Node.js verification
+
+✅ HTTP module
+
+✅ Web server creation
+
+✅ Browser/server communication
+
+✅ JavaScript execution outside browsers
+
+✅ Kafka consumer concepts
+
+✅ Web application foundations
+
+---
+
+# My Key Takeaways
+
+- Node.js allows JavaScript to run outside of a browser.
+- Node.js is commonly used to build APIs and web servers.
+- The HTTP module can be used to quickly create a simple web server.
+- A Node.js web server listens for requests and returns responses to clients.
+- Node.js will be used in Project 24.2 to consume Kafka messages.
+- The Hello World example introduces the foundational concepts needed to build a streaming Kafka-based web application.
+- Node.js is highly relevant to real-time telemetry, IoT, and fleet management platforms.
